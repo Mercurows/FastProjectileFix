@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mercurows.fast_projectile_fix.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "fast_projectile_fix.refmap.json",
+  "mixins": [
+    "ClientboundSetEntityMotionPacketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
