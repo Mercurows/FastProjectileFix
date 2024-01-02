@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientboundSetEntityMotionPacket.class)
@@ -33,23 +34,30 @@ public class ClientboundSetEntityMotionPacketMixin {
     @Shadow
     private int za;
 
-    @Inject(method = "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At(value = "RETURN"))
+    @Inject(method = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;" +
+            "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At(value = "RETURN"))
     public void init(int entityId, Vec3 motion, CallbackInfo ci) {
         this.xa = (int) (motion.x * 8000.0D);
         this.ya = (int) (motion.y * 8000.0D);
         this.za = (int) (motion.z * 8000.0D);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "TAIL"), cancellable = true)
+    @Redirect(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readShort()S"))
+    public short readShort(FriendlyByteBuf instance) {
+        return 0;
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "RETURN"), cancellable = true)
     public void read(FriendlyByteBuf buf, CallbackInfo ci) {
         ci.cancel();
-        this.id = buf.readVarInt();
         this.xa = buf.readInt();
         this.ya = buf.readInt();
         this.za = buf.readInt();
     }
 
-    @Inject(method = "write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;" +
+            "write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "HEAD"), cancellable = true)
     public void write(FriendlyByteBuf buf, CallbackInfo ci) {
         ci.cancel();
         buf.writeVarInt(this.id);
