@@ -34,8 +34,7 @@ public class ClientboundSetEntityMotionPacketMixin {
     @Shadow
     private int za;
 
-    @Inject(method = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;" +
-            "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At(value = "RETURN"))
+    @Inject(method = "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At(value = "RETURN"))
     public void init(int entityId, Vec3 motion, CallbackInfo ci) {
         this.xa = (int) (motion.x * 8000.0D);
         this.ya = (int) (motion.y * 8000.0D);
@@ -56,8 +55,7 @@ public class ClientboundSetEntityMotionPacketMixin {
         this.za = buf.readInt();
     }
 
-    @Inject(method = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;" +
-            "write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "HEAD"), cancellable = true)
     public void write(FriendlyByteBuf buf, CallbackInfo ci) {
         ci.cancel();
         buf.writeVarInt(this.id);
